@@ -15,15 +15,33 @@
         font-family: "Work Sans", san-serif;
       }
 
+      .header {
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 20px;
+        padding: 10px;
+        margin-bottom: 10px;
+        text-align: center;
+        height: 10vh;
+      }
+
       .filter {
         height: fit-content;
         width: fit-content;
-        background-color: rgba(175, 175, 175, 0.4);
+        background-color: white;
         padding: 10;
         cursor: pointer;
         border-radius: 4px;
         margin: 5px;
         transition: background-color 0.3s ease;
+        border: 1px solid black;
+      }
+
+      .filter:hover {
+        background-color: rgba(255, 0, 0, 0.6);
+        color: white;
+      }
+
+      .selected:hover {
+        background-color: rgba(255, 0, 0, 0.6);
       }
 
       .selected {
@@ -32,13 +50,14 @@
       }
 
       #filter-area {
+        background-color: #f7f9fa;
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        width: 20%;
-        border: 1px solid grey;
-        height: fit-content;
+        width: 18vw;
+        height: 60vh;
         float: left;
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 20px;
       }
 
       .allOrClearButton {
@@ -48,7 +67,9 @@
         cursor: pointer;
         margin: 5;
         border-radius: 4px;
-        border: 1px solid grey;
+        border: 1px solid black;
+        background-color: white;
+        font-weight: 800;
       }
 
       .inner {
@@ -67,16 +88,42 @@
       }
 
       #map {
-        border: 1px solid red;
+        margin-left: 10px;
+        background-color: #f7f9fa;
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
+      }
+
+      #inspector {
+        height: 50vh;
+        width: 20vw;
+        margin-left: 10px;
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
+      }
+
+      .title {
+        margin: 10px 0px 10px 10px;
+        border-bottom: solid 1px grey;
+        padding-bottom: 5px;
+      }
+
+      .inspectorText {
+        margin: 10px;
       }
     </style>
   </head>
 
   <body>
-    <h1>Food Around Boston</h1>
-    <div>
-      <div id="filter-area"></div>
-      <svg id="map" height="500" width="700"></svg>
+    <div class="header"><h1>Eat Boston, Eat Better</h1></div>
+    <div style="display: flex; flex-direction: row">
+      <div id="filter-area">
+        <h4 class="title">Select what you are feeling:</h4>
+      </div>
+      <svg id="map" height="85vh" width="60vw"></svg>
+      <div id="inspector">
+        <h2 class="inspectorText">
+          Click a restaurant to view it's details...
+        </h2>
+      </div>
     </div>
   </body>
 
@@ -121,6 +168,7 @@
         filter.innerHTML += `<div class="filter" id="${searchCategory[i]}" onClick="toggleFilter(this)">${formattedFilterName}</div>`;
       }
       filter.innerHTML +=
+        `<br />` +
         `<div class="allOrClearButton">` +
         `<div class="inner allButton" onclick="selectAll()">All</div>` +
         ` <div class="inner" onclick="clearAll()">Clear</div> </div>`;
