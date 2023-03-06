@@ -16,6 +16,8 @@
       }
 
       .header {
+        background-color: #fb4d42;
+        color: white;
         box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 20px;
         padding: 10px;
         margin-bottom: 10px;
@@ -36,16 +38,16 @@
       }
 
       .filter:hover {
-        background-color: rgba(255, 0, 0, 0.6);
+        background-color: #fb4d42;
         color: white;
       }
 
       .selected:hover {
-        background-color: rgba(255, 0, 0, 0.6);
+        background-color: #fb4d42;
       }
 
       .selected {
-        background-color: rgba(255, 0, 0, 0.6);
+        background-color: #fb4d42;
         color: white;
       }
 
@@ -79,7 +81,7 @@
       }
 
       .inner:hover {
-        background-color: rgba(255, 0, 0, 0.6);
+        background-color: #fb4d42;
         color: white;
       }
 
@@ -94,20 +96,18 @@
       }
 
       #inspector {
-        height: 50vh;
+        height: 60vh;
+        color: white;
         width: 20vw;
         margin-left: 10px;
         box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
+        background-color: #f7f9fa;
       }
 
       .title {
-        margin: 10px 0px 10px 10px;
-        border-bottom: solid 1px grey;
-        padding-bottom: 5px;
-      }
-
-      .inspectorText {
         margin: 10px;
+        border-bottom: solid 1px grey;
+        color: black;
       }
     </style>
   </head>
@@ -116,13 +116,11 @@
     <div class="header"><h1>Eat Boston, Eat Better</h1></div>
     <div style="display: flex; flex-direction: row">
       <div id="filter-area">
-        <h3 class="title">Select what you are feeling:</h3>
+        <h2 class="title">Select what cuisine you are feeling:</h2>
       </div>
       <svg id="map" height="85vh" width="60vw"></svg>
       <div id="inspector">
-        <h2 class="inspectorText">
-          Then click a restaurant to view it's details...
-        </h2>
+        <h2 class="title">Then click a restaurant to view it's details...</h2>
       </div>
     </div>
   </body>
