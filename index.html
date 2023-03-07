@@ -98,7 +98,7 @@
 
       #inspector {
         height: 60vh;
-        color: white;
+        color: black;
         margin-left: 10px;
         box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
         background-color: #f7f9fa;
@@ -127,6 +127,12 @@
       <svg id="map" height="85vh" width="45vw"></svg>
       <div id="inspector" style="width: 27vw;">
         <h2 class="title">Select a restaurant to view it's details...</h2>
+        <div class="info" style="padding-left: 10px;">
+          <p id="name"> Name: </p>
+          <p id="rating"> Rating:  </p>
+          <p id="neighborhood"> Neighborhood: </p>
+          <p id="review"> Sample Review: </p>
+        </div>
       </div>
     </div>
   </body>
@@ -181,13 +187,9 @@
     const requestData = async function () {
       let map = d3.select("#map");
       let dimensions = map.node().getBoundingClientRect();
-      console.log(map.node().getBoundingClientRect());
-
       let mapWidth = dimensions.width;
       let mapHeight = dimensions.height;
       const viewport = map.append("g").attr("class", "viewport");
-      console.log(mapWidth);
-      console.log(mapHeight);
 
       let reviews = await d3.csv("yelp_boston.csv", d3.autoType);
       let bostonGeo = await d3.json("boston_zipcodes.topo.json");
@@ -213,6 +215,19 @@
             .attr("d", path)
             .style("stroke-width", 1)
             .style("stroke", "white");
+
+      reviews.forEach( d => {
+        d.position = projection([d.longitude, d.latitude]);
+      });
+
+      let circles = viewport.selectAll("circle.datapoint").data(reviews)
+           .join("circle")
+           .attr("class","datapoint")
+           .attr("r", 4)
+           .attr("cx", d => d.position[0])
+           .attr("cy", d => d.position[1])
+           .on("mouseover", mouseOver)
+           .on("mouseout", mouseOut);
 
     };
 
@@ -252,6 +267,30 @@
           }
         });
       }
+    }
+
+    function mouseOver(event, d) {
+      let name = document.getElementById("name");
+      let rating = document.getElementById("rating");
+      let neighborhood = document.getElementById("neighborhood");
+      let review = document.getElementById("review");
+
+      name.textContent = "Name: " + d.name;
+      rating.textContent = "Rating: " + d.rating;
+      neighborhood.textContent = "Neighborhood: " + d.neighborhood;
+      review.textContent = "Sample Review: " + d.snippet_text;
+    }
+
+    function mouseOut(event, d) {
+      let name = document.getElementById("name");
+      let rating = document.getElementById("rating");
+      let neighborhood = document.getElementById("neighborhood");
+      let review = document.getElementById("review");
+
+      name.textContent = "Name: ";
+      rating.textContent = "Rating: ";
+      neighborhood.textContent = "Neighborhood: ";
+      review.textContent = "Sample Review: ";
     }
 
     requestData();
