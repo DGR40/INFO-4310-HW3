@@ -3,6 +3,7 @@
     <meta charset="utf-8" />
     <title>INFO 4310 HW 3</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/topojson.v3.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -120,7 +121,7 @@
       </div>
       <svg id="map" height="85vh" width="60vw"></svg>
       <div id="inspector">
-        <h2 class="title">Then click a restaurant to view it's details...</h2>
+        <h2 class="title">Select a restaurant to view it's details...</h2>
       </div>
     </div>
   </body>
@@ -173,8 +174,45 @@
     }
 
     const requestData = async function () {
+      let map = d3.select("#map");
+      let mapWidth = map.attr("width");
+      let mapHeight = map.attr("height");
+      const viewport = map.append("g");
+
       let reviews = await d3.csv("yelp_boston.csv", d3.autoType);
+      let bostonGeo = await d3.json("boston_zipcodes.topo.json");
       console.log(reviews);
+      console.log(bostonGeo);
+
+      const zips = topojson.feature(bostonGeo, bostonGeo.objects.collection);
+      const zipsMesh = topojson.mesh(bostonGeo, bostonGeo.objects.collection);
+      //const stateMesh = topojson.mesh(bostonGeo, bosttonGeo.objects.state);
+      var projection = d3.geoMercator().fitSize([mapWidth, mapHeight], zips);
+      var path = d3.geoPath().projection(projection);
+
+      console.log(zips);
+      console.log(zipsMesh);
+     
+      // let zipPaths = viewport.selectAll("path.zip").data(zips.features)
+      //       .join("path")
+      //       .attr("class", "zip")
+      //       .attr("d", path)
+      //       .style("fill", "grey");
+  
+      viewport.append("path").datum(zipsMesh)
+            .attr("class","zip-outline")
+            .attr("d", path)
+            .style("stroke-width", 1)
+            .style("stroke", "white");
+
+      // viewport.append("path").datum(stateMesh)
+      //       .attr("class","state-outline")
+      //       .attr("d", path)
+      //       .style("stroke", "darkgrey")
+      //       .style("stroke-width", 3);
+
+
+
     };
 
     function toggleFilter(elt) {
@@ -187,8 +225,6 @@
       }
       let classes = elt.classList;
       classes.toggle("selected");
-      console.log("classes:", classes);
-      console.log(activeFilters);
     }
 
     function selectAll() {
