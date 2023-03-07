@@ -57,7 +57,6 @@
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        width: 18vw;
         height: 60vh;
         float: left;
         box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 20px;
@@ -92,14 +91,14 @@
 
       #map {
         margin-left: 10px;
-        background-color: #f7f9fa;
-        box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
+        background-color: grey;
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;  
+        padding: 5px;      
       }
 
       #inspector {
         height: 60vh;
         color: white;
-        width: 20vw;
         margin-left: 10px;
         box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
         background-color: #f7f9fa;
@@ -110,17 +109,23 @@
         border-bottom: solid 1px grey;
         color: black;
       }
+      .zip-outline {
+        fill: none;
+      }
+      .zip{
+        padding-top: 5px;
+      }
     </style>
   </head>
 
   <body>
     <div class="header"><h1>Eat Boston, Eat Better</h1></div>
-    <div style="display: flex; flex-direction: row">
-      <div id="filter-area">
+    <div style="display: flex; flex-direction: row;">
+      <div id="filter-area" style="width: 25vw;">
         <h2 class="title">Select what cuisine you are feeling:</h2>
       </div>
-      <svg id="map" height="85vh" width="60vw"></svg>
-      <div id="inspector">
+      <svg id="map" height="85vh" width="45vw"></svg>
+      <div id="inspector" style="width: 27vw;">
         <h2 class="title">Select a restaurant to view it's details...</h2>
       </div>
     </div>
@@ -175,9 +180,14 @@
 
     const requestData = async function () {
       let map = d3.select("#map");
-      let mapWidth = map.attr("width");
-      let mapHeight = map.attr("height");
-      const viewport = map.append("g");
+      let dimensions = map.node().getBoundingClientRect();
+      console.log(map.node().getBoundingClientRect());
+
+      let mapWidth = dimensions.width;
+      let mapHeight = dimensions.height;
+      const viewport = map.append("g").attr("class", "viewport");
+      console.log(mapWidth);
+      console.log(mapHeight);
 
       let reviews = await d3.csv("yelp_boston.csv", d3.autoType);
       let bostonGeo = await d3.json("boston_zipcodes.topo.json");
@@ -186,32 +196,23 @@
 
       const zips = topojson.feature(bostonGeo, bostonGeo.objects.collection);
       const zipsMesh = topojson.mesh(bostonGeo, bostonGeo.objects.collection);
-      //const stateMesh = topojson.mesh(bostonGeo, bosttonGeo.objects.state);
-      var projection = d3.geoMercator().fitSize([mapWidth, mapHeight], zips);
+      var projection = d3.geoMercator().fitSize([mapWidth-10, mapHeight-10], zipsMesh);
       var path = d3.geoPath().projection(projection);
 
       console.log(zips);
       console.log(zipsMesh);
      
-      // let zipPaths = viewport.selectAll("path.zip").data(zips.features)
-      //       .join("path")
-      //       .attr("class", "zip")
-      //       .attr("d", path)
-      //       .style("fill", "grey");
+      let zipPaths = viewport.selectAll("path.zip").data(zips.features)
+            .join("path")
+            .attr("class", "zip")
+            .attr("d", path)
+            .style("fill", "none");
   
       viewport.append("path").datum(zipsMesh)
             .attr("class","zip-outline")
             .attr("d", path)
             .style("stroke-width", 1)
             .style("stroke", "white");
-
-      // viewport.append("path").datum(stateMesh)
-      //       .attr("class","state-outline")
-      //       .attr("d", path)
-      //       .style("stroke", "darkgrey")
-      //       .style("stroke-width", 3);
-
-
 
     };
 
