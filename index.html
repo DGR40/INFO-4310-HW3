@@ -91,9 +91,9 @@
 
       #map {
         margin-left: 10px;
-        background-color: grey;
-        box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;  
-        padding: 5px;      
+        background-color: white;
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
+        padding: 5px;
       }
 
       #inspector {
@@ -112,7 +112,7 @@
       .zip-outline {
         fill: none;
       }
-      .zip{
+      .zip {
         padding-top: 5px;
       }
     </style>
@@ -120,24 +120,25 @@
 
   <body>
     <div class="header"><h1>Eat Boston, Eat Better</h1></div>
-    <div style="display: flex; flex-direction: row;">
-      <div id="filter-area" style="width: 25vw;">
+    <div style="display: flex; flex-direction: row">
+      <div id="filter-area" style="width: 25vw">
         <h2 class="title">Select what cuisine you are feeling:</h2>
       </div>
       <svg id="map" height="85vh" width="45vw"></svg>
-      <div id="inspector" style="width: 27vw;">
+      <div id="inspector" style="width: 27vw">
         <h2 class="title">Select a restaurant to view it's details...</h2>
-        <div class="info" style="padding-left: 10px;">
-          <p id="name"> Name: </p>
-          <p id="rating"> Rating:  </p>
-          <p id="neighborhood"> Neighborhood: </p>
-          <p id="review"> Sample Review: </p>
+        <div class="info" style="padding-left: 10px">
+          <p id="name">Name:</p>
+          <p id="rating">Rating:</p>
+          <p id="neighborhood">Neighborhood:</p>
+          <p id="review">Sample Review:</p>
         </div>
       </div>
     </div>
   </body>
 
   <script>
+    let REVIEWS = [];
     let activeFilters = [];
     let searchCategory = [
       "bakeries",
@@ -184,58 +185,102 @@
         ` <div class="inner" onclick="clearAll()">Clear</div> </div>`;
     }
 
-    const requestData = async function () {
-      let map = d3.select("#map");
-      let dimensions = map.node().getBoundingClientRect();
-      let mapWidth = dimensions.width;
-      let mapHeight = dimensions.height;
-      const viewport = map.append("g").attr("class", "viewport");
+    let map = d3.select("#map");
+    let dimensions = map.node().getBoundingClientRect();
+    let mapWidth = dimensions.width;
+    let mapHeight = dimensions.height;
+    const viewport = map.append("g").attr("class", "viewport");
 
+    let PATH = "";
+    let PROJECTION = "";
+
+    const requestData = async function () {
       let reviews = await d3.csv("yelp_boston.csv", d3.autoType);
+      REVIEWS = reviews;
       let bostonGeo = await d3.json("boston_zipcodes.topo.json");
       console.log(reviews);
       console.log(bostonGeo);
 
       const zips = topojson.feature(bostonGeo, bostonGeo.objects.collection);
       const zipsMesh = topojson.mesh(bostonGeo, bostonGeo.objects.collection);
-      var projection = d3.geoMercator().fitSize([mapWidth-10, mapHeight-10], zipsMesh);
+      var projection = d3
+        .geoMercator()
+        .fitSize([mapWidth - 10, mapHeight - 10], zipsMesh);
+      PROJECTION = projection;
       var path = d3.geoPath().projection(projection);
+      PATH = path;
 
       console.log(zips);
       console.log(zipsMesh);
-     
-      let zipPaths = viewport.selectAll("path.zip").data(zips.features)
-            .join("path")
-            .attr("class", "zip")
-            .attr("d", path)
-            .style("fill", "none");
-  
-      viewport.append("path").datum(zipsMesh)
-            .attr("class","zip-outline")
-            .attr("d", path)
-            .style("stroke-width", 1)
-            .style("stroke", "white");
 
-      reviews.forEach( d => {
-        d.position = projection([d.longitude, d.latitude]);
+      let zipPaths = viewport
+        .selectAll("path.zip")
+        .data(zips.features)
+        .join("path")
+        .attr("class", "zip")
+        .attr("d", path)
+        .style("fill", "none");
+
+      viewport
+        .append("path")
+        .datum(zipsMesh)
+        .attr("class", "zip-outline")
+        .attr("d", path)
+        .style("stroke-width", 1)
+        .style("stroke", "grey");
+
+      let filteredReviews = [];
+
+      reviews.forEach((d) => {
+        let searchCategory = d["search category"];
+        if (
+          activeFilters.includes(d["search category"]) &&
+          d["neighborhood"] !== null
+        ) {
+          d.position = projection([d.longitude, d.latitude]);
+          filteredReviews.push(d);
+        }
       });
 
-      let circles = viewport.selectAll("circle.datapoint").data(reviews)
-           .join("circle")
-           .attr("class","datapoint")
-           .attr("r", 4)
-           .attr("cx", d => d.position[0])
-           .attr("cy", d => d.position[1])
-           .on("mouseover", mouseOver)
-           .on("mouseout", mouseOut);
-
+      let circles = viewport
+        .selectAll("circle.datapoint")
+        .data(filteredReviews)
+        .join("circle")
+        .attr("class", (d) => `datapoint ${d["search category"]}`)
+        .attr("r", 5)
+        .attr("cx", (d) => d.position[0])
+        .attr("cy", (d) => d.position[1])
+        .attr("fill", (d) => findFill(d.rating))
+        .attr("stroke", "black")
+        .on("mouseover", mouseOver)
+        .on("mouseout", mouseOut);
     };
+
+    function findFill(rating) {
+      if (rating >= 4.5) {
+        return "#7ABD7E";
+      } else if (rating > 3.5 && rating < 4.5) {
+        return "#FFB54C";
+      } else {
+        return "#FF6961";
+      }
+    }
+
+    function clearCircles(category = null) {
+      if (category) {
+        d3.selectAll(`circle.datapoint.${category}`).remove();
+      } else {
+        d3.selectAll(`circle.datapoint`).remove();
+      }
+    }
 
     function toggleFilter(elt) {
       let filter = elt.id;
       if (!activeFilters.includes(filter)) {
         activeFilters.push(filter);
+        requestData();
       } else {
+        clearCircles(filter);
         let targetIndex = activeFilters.indexOf(filter);
         activeFilters.splice(targetIndex, 1);
       }
@@ -251,8 +296,12 @@
         if (activeFilters.includes(filter)) {
           let targetIndex = activeFilters.indexOf(filter);
           activeFilters.splice(targetIndex, 1);
+        } else {
+          activeFilters.push(filter);
         }
       });
+      clearCircles();
+      requestData();
     }
 
     function clearAll() {
@@ -267,6 +316,7 @@
           }
         });
       }
+      clearCircles();
     }
 
     function mouseOver(event, d) {
