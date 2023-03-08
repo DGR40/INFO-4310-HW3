@@ -62,18 +62,9 @@
 
       .inner {
         flex: 1;
-        padding: 10;
+        margin: 5px;
         transition: background-color 0.3s ease;
         cursor: pointer;
-      }
-
-      .inner:hover {
-        background-color: #fb4d42;
-        color: white;
-      }
-
-      .allButton {
-        border-right: 1px solid grey;
       }
 
       #map {
@@ -222,8 +213,8 @@
       filter.innerHTML += `<button class="filter selected" id="${searchCategory[i]}">${formattedFilterName}</button>`;
     }
     filter.innerHTML +=
-      `<button id="all" class="inner allButton selected">All</button>` +
-      `<button id="clear" class="inner">Clear</button> </div>`;
+      `<button id="all" class="inner selected">All</button>` +
+      `<button id="clear" class="inner">Clear</button>`;
 
     const createGraph = async function () {
       // map setup
