@@ -138,8 +138,6 @@
   </body>
 
   <script>
-    let REVIEWS = [];
-    let activeFilters = [];
     let searchCategory = [
       "bakeries",
       "cafes",
@@ -176,14 +174,16 @@
           formattedFilterName =
             filterName.charAt(0).toUpperCase() + filterName.substring(1);
         }
-        filter.innerHTML += `<div class="filter" id="${searchCategory[i]}" onClick="toggleFilter(this)">${formattedFilterName}</div>`;
+        filter.innerHTML += `<div class="filter" id="${searchCategory[i]}">${formattedFilterName}</div>`;
       }
       filter.innerHTML +=
         `<br />` +
         `<div class="allOrClearButton">` +
-        `<div class="inner allButton" onclick="selectAll()">All</div>` +
-        ` <div class="inner" onclick="clearAll()">Clear</div> </div>`;
+        `<div id="select" class="inner allButton">All</div>` +
+        ` <div id="clear" class="inner">Clear</div> </div>`;
     }
+    makeFilters();
+
 
     let map = d3.select("#map");
     let dimensions = map.node().getBoundingClientRect();
@@ -191,74 +191,27 @@
     let mapHeight = dimensions.height;
     const viewport = map.append("g").attr("class", "viewport");
 
-    let PATH = "";
-    let PROJECTION = "";
-
     const requestData = async function () {
-      let reviews = await d3.csv("yelp_boston.csv", d3.autoType);
-      REVIEWS = reviews;
-      let bostonGeo = await d3.json("boston_zipcodes.topo.json");
+      var activeFilters = [];
+
+      var reviews = await d3.csv("yelp_boston.csv", d3.autoType);
+      reviews = reviews.filter( d => (d["neighborhood"]!== null));
       console.log(reviews);
-      console.log(bostonGeo);
+      let bostonGeo = await d3.json("boston_zipcodes.topo.json");
 
-      const zips = topojson.feature(bostonGeo, bostonGeo.objects.collection);
       const zipsMesh = topojson.mesh(bostonGeo, bostonGeo.objects.collection);
-      var projection = d3
-        .geoMercator()
-        .fitSize([mapWidth - 10, mapHeight - 10], zipsMesh);
-      PROJECTION = projection;
+      var projection = d3.geoMercator().fitSize([mapWidth - 10, mapHeight - 10], zipsMesh);
       var path = d3.geoPath().projection(projection);
-      PATH = path;
-
-      console.log(zips);
-      console.log(zipsMesh);
-
-      let zipPaths = viewport
-        .selectAll("path.zip")
-        .data(zips.features)
-        .join("path")
-        .attr("class", "zip")
-        .attr("fill", "none")
-        .attr("d", path);
-
-      viewport
-        .append("path")
-        .datum(zipsMesh)
-        .attr("class", "zip-outline")
-        .attr("d", path)
-        .style("stroke-width", 1)
-        .style("stroke", "grey");
-
-      let filteredReviews = [];
-
-      reviews.forEach((d) => {
-        let searchCategory = d["search category"];
-        if (
-          activeFilters.includes(d["search category"]) &&
-          d["neighborhood"] !== null
-        ) {
-          d.position = projection([d.longitude, d.latitude]);
-          filteredReviews.push(d);
-        } if (d["neighborhood"] === null){
-          console.log("null");
-        }; 
-      });
 
 
-      let circles = viewport
-        .selectAll("circle.datapoint")
-        .data(filteredReviews)
-        .join("circle")
-        .attr("class", (d) => `datapoint ${d["search category"]}`)
-        .attr("r", 5)
-        .attr("cx", (d) => d.position[0])
-        .attr("cy", (d) => d.position[1])
-        .attr("fill", (d) => findFill(d.rating))
-        .attr("stroke", "black")
-        .attr("stroke-width", 1)
-        .on("click", mouseClick);
+      viewport.append("path")
+              .datum(zipsMesh)
+              .attr("class", "zip-outline")
+              .attr("d", path)
+              .style("stroke-width", 1)
+              .style("stroke", "grey");
 
-      // landmarks in order (fenway park, )
+       // landmarks in order (fenway park, )
       let fenway = projection([-71.0972,42.3467]);
       let faneuil = projection([-71.0551, 42.3602]);
       let commons = projection([-71.0657 ,42.3551])
@@ -278,23 +231,106 @@
               .attr("class", "star")
               .attr("d", sym)
               .attr("fill", "gold")
-              .attr("transform", d => `translate(${d[0]},${d[1]})`)
-
+              .attr("transform", d => `translate(${d[0]},${d[1]})`)    
+      
+      
       var zoom = d3.zoom()
-            .scaleExtent([1,10])
-            .on("zoom", mapZoomed);
+                  .scaleExtent([1,10])
+                  .on("zoom", mapZoomed);
 
       map.call(zoom);
+
+      reviews.forEach((d) => {
+          d.position = projection([d.longitude, d.latitude]);
+      });
 
       function mapZoomed(event) {
           viewport.attr("transform", event.transform.toString());
           viewport.select(".zip-outline")
                   .style("stroke-width", 1 / event.transform.k);
           circles.attr("r", 5 / event.transform.k).style("stroke-width", 1 / event.transform.k)
+      };
 
+      let clear_button = d3.select("#clear").on("click", clear);
+      let all_button = d3.select("#select").on("click", all);
+      let filters = d3.selectAll("div.filter").on("click", addFilter);
+      
+      function clear() {
+        console.log("clear")
+        let filter_input = [];
+        let activeFilters = filter_input;
+
+        updatePoints(filter_input, reviews);
+      }
+      function all() {
+        console.log("all")
+        let filter_input = searchCategory;
+        let activeFilters = filter_input;
+
+        updatePoints(filter_input, reviews);
+      }
+      function addFilter() {
+        console.log("filter")
+        console.log("other function", activeFilters)
+        
       }
 
-    };
+      updatePoints(searchCategory, reviews);
+
+
+      function updatePoints(filters, data) {
+        // this won't change the activeFilters variable up top 
+        let activeFilters = filters;
+        console.log("activeFilters variable", activeFilters)
+        data = data.filter( d => filters.includes(d["search category"]) ); 
+
+        viewport
+          .selectAll("circle.datapoint")
+          .data(data)
+          .join("circle")
+          .attr("class", "datapoint")
+          .attr("r", 5)
+          .attr("cx", (d) => d.position[0])
+          .attr("cy", (d) => d.position[1])
+          .attr("fill", (d) => findFill(d.rating))
+          .attr("stroke", "black")
+          .attr("stroke-width", 1)
+          .on("mouseover", mouseOver)
+          .on("mouseout", mouseOut);
+        
+          function mouseOver(event, d) {
+            console.log("mouseover!!");
+            let point = d3.select(this);
+
+            let name = document.getElementById("name");
+            let rating = document.getElementById("rating");
+            let neighborhood = document.getElementById("neighborhood");
+            let review = document.getElementById("review");
+            point.attr("fill", "red").attr("r", 8);
+
+            name.textContent = "Name: " + d.name;
+            rating.textContent = "Rating: " + d.rating;
+            neighborhood.textContent = "Neighborhood: " + d.neighborhood;
+            review.textContent = "Sample Review: " + d.snippet_text;
+          }
+
+          function mouseOut(event, d){
+            let point = d3.select(this);
+            let name = document.getElementById("name");
+            let rating = document.getElementById("rating");
+            let neighborhood = document.getElementById("neighborhood");
+            let review = document.getElementById("review");
+            point.attr("fill", (d) => findFill(d.rating)).attr("r", 5)
+
+            name.textContent = "Name: ";
+            rating.textContent = "Rating: ";
+            neighborhood.textContent = "Neighborhood: ";
+            review.textContent = "Sample Review: ";
+          }
+      };
+
+
+    }
 
     function findFill(rating) {
       if (rating >= 4.5) {
@@ -306,111 +342,23 @@
       }
     }
 
-    function clearCircles(category = null) {
-      if (category) {
-        d3.selectAll(`circle.datapoint.${category}`).remove();
-      } else {
-        d3.selectAll(`circle.datapoint`).remove();
-      }
-    }
-
-    function toggleFilter(elt) {
-      let filter = elt.id;
-      if (!activeFilters.includes(filter)) {
-        activeFilters.push(filter);
-        requestData();
-      } else {
-        clearCircles(filter);
-        let targetIndex = activeFilters.indexOf(filter);
-        activeFilters.splice(targetIndex, 1);
-      }
-      let classes = elt.classList;
-      classes.toggle("selected");
-    }
-
-    function selectAll() {
-      let allFilters = Array.from(document.getElementsByClassName("filter"));
-      allFilters.forEach((f) => {
-        f.classList = "filter selected";
-        let filter = f.id;
-        if (activeFilters.includes(filter)) {
-          let targetIndex = activeFilters.indexOf(filter);
-          activeFilters.splice(targetIndex, 1);
-        } else {
-          activeFilters.push(filter);
-        }
-      });
-      clearCircles();
-      requestData();
-    }
-
-    function clearAll() {
-      let allFilters = Array.from(document.getElementsByClassName("filter"));
-      if (allFilters.length > 1) {
-        allFilters.forEach((f) => {
-          f.classList = "filter";
-          let filter = f.id;
-          if (activeFilters.includes(filter)) {
-            let targetIndex = activeFilters.indexOf(filter);
-            activeFilters.splice(targetIndex, 1);
-          }
-        });
-      }
-      clearCircles();
-    }
-
-    let clicked = false;
-    function mouseClick(event, d) {
-      console.log("clicked!!");
-      let point = d3.select(this);
-      // if clicked is false 
-      if (!clicked) {
-        console.log("hello")
-        let name = document.getElementById("name");
-        let rating = document.getElementById("rating");
-        let neighborhood = document.getElementById("neighborhood");
-        let review = document.getElementById("review");
-        point.attr("fill", "red").attr("r", 8);
-
-        name.textContent = "Name: " + d.name;
-        rating.textContent = "Rating: " + d.rating;
-        neighborhood.textContent = "Neighborhood: " + d.neighborhood;
-        review.textContent = "Sample Review: " + d.snippet_text;
-
-        clicked = true;
-
-      }
-      else if (clicked) {
-        let name = document.getElementById("name");
-        let rating = document.getElementById("rating");
-        let neighborhood = document.getElementById("neighborhood");
-        let review = document.getElementById("review");
-        point.attr("fill", (d) => findFill(d.rating)).attr("r", 5)
-
-        name.textContent = "Name: ";
-        rating.textContent = "Rating: ";
-        neighborhood.textContent = "Neighborhood: ";
-        review.textContent = "Sample Review: ";
-
-        clicked = false;
-      }
-    }
-
-    // function mouseOut(event, d) {
-    //   let name = document.getElementById("name");
-    //   let rating = document.getElementById("rating");
-    //   let neighborhood = document.getElementById("neighborhood");
-    //   let review = document.getElementById("review");
-    //   let point = d3.select(this);
-    //   point.attr("fill", (d) => findFill(d.rating)).attr("r", 5)
-
-    //   name.textContent = "Name: ";
-    //   rating.textContent = "Rating: ";
-    //   neighborhood.textContent = "Neighborhood: ";
-    //   review.textContent = "Sample Review: ";
+    // function toggleFilter(elt) {
+    //   console.log(elt);
+    //   let filter = elt.id;
+    //   if (!activeFilters.includes(filter)) {
+    //     activeFilters.push(filter);
+    //     updatePoints(reviews);
+    //   } 
+    //   else {
+    //     let targetIndex = activeFilters.indexOf(filter);
+    //     activeFilters.splice(targetIndex, 1);
+    //     updatePoints(reviews);
+    //   }
+    //   let classes = elt.classList;
+    //   classes.toggle("selected");
     // }
 
+
     requestData();
-    makeFilters();
   </script>
 </html>
