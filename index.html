@@ -178,7 +178,6 @@
     filter.innerHTML += `<button class="filter selected" id="${searchCategory[i]}">${formattedFilterName}</button>`;
   }
   filter.innerHTML +=
-    `<div class="allOrClearButton">` +
     `<button id="all" class="inner allButton">All</button>` +
     `<button id="clear" class="inner">Clear</button> </div>`;
   
@@ -211,7 +210,7 @@
 
 
     // zoom capabilities
-    var zoom = d3.zoom().scaleExtent([1, 10]).on("zoom", mapZoomed);
+    var zoom = d3.zoom().scaleExtent([1, 15]).on("zoom", mapZoomed);
     map.call(zoom);
 
     var kholder = 1;
@@ -255,7 +254,6 @@
                                           return "#FF6961";
                                         }
                                       })
-                                      .attr("opacity", 0.9)
                                       .on("mouseover", mouseOver)
                                       .on("mouseout", mouseOut))
                                       .attr("r", 5 / kholder)
@@ -307,13 +305,27 @@
       drawCircles(filter_dict);
     });
 
+    d3.select("#all").on("click", function() {
+      for (key in filter_dict){
+        filter_dict[key] = true;
+      }
+      drawCircles(filter_dict);
+    });
+
+    d3.select("#clear").on("click", function() {
+      for (key in filter_dict){
+        filter_dict[key] = false;
+      }
+      drawCircles(filter_dict);
+    });
+
     function mouseOver(event, d) {
       let point = d3.select(this);
       let name = document.getElementById("name");
       let rating = document.getElementById("rating");
       let neighborhood = document.getElementById("neighborhood");
       let review = document.getElementById("review");
-      point.attr("fill", "red").attr("r", 8/ kholder);
+      point.attr("r", 9/ kholder).attr("stroke-width", 3 / kholder);
 
       name.textContent = "Name: " + d.name;
       rating.textContent = "Rating: " + d.rating;
@@ -336,7 +348,7 @@
                               } else {
                                 return "#FF6961";
                               }
-                            }).attr("r", 5 / kholder)
+                            }).attr("r", 5 / kholder).attr("stroke-width", 1 / kholder)
       name.textContent = "Name: ";
       rating.textContent = "Rating: ";
       neighborhood.textContent = "Neighborhood: ";
