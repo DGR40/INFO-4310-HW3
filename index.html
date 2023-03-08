@@ -91,6 +91,47 @@
         background-color: #f7f9fa;
       }
 
+      #legend {
+        height: 21vh;
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
+        background-color: #f7f9fa;
+        padding: 5px;
+        margin-left: 10px;
+        margin-top: 10px;
+      }
+
+      .row {
+        height: 6.1vh;
+        width: auto;
+        justify-content: center;
+        margin: 5px;
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        background-color: white;
+        box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
+        background-color: #f7f9fa;
+      }
+
+      .legend-text {
+        text-align: center;
+      }
+
+      #green {
+        background-color: #7abd7e;
+        width: 20%;
+      }
+
+      #orange {
+        background-color: #ffb54c;
+        width: 20%;
+      }
+
+      #red {
+        background-color: #fb4d42;
+        width: 20%;
+      }
+
       .title {
         margin: 10px;
         border-bottom: solid 1px grey;
@@ -111,14 +152,30 @@
       <div id="filter-area" style="width: 25vw">
         <h2 class="title">Select what cuisine you are feeling:</h2>
       </div>
-      <svg id="map" height="85vh" width="45vw"></svg>
-      <div id="inspector" style="width: 27vw">
-        <h2 class="title">Click on a restaurant to view it's details...</h2>
-        <div class="info" style="padding-left: 10px">
-          <p id="name">Name:</p>
-          <p id="rating">Rating:</p>
-          <p id="neighborhood">Neighborhood:</p>
-          <p id="review">Sample Review:</p>
+      <svg id="map" height="83vh" width="45vw"></svg>
+      <div>
+        <div id="inspector" style="width: 27vw">
+          <h2 class="title">Click on a restaurant to view it's details...</h2>
+          <div class="info" style="padding-left: 10px">
+            <p id="name">Name:</p>
+            <p id="rating">Rating:</p>
+            <p id="neighborhood">Neighborhood:</p>
+            <p id="review">Sample Review:</p>
+          </div>
+        </div>
+        <div id="legend">
+          <div class="row">
+            <div id="green"></div>
+            <div id="legend-text"><h2>Rating >= 4.5</h2></div>
+          </div>
+          <div class="row">
+            <div id="orange"></div>
+            <div id="legend-text"><h2>Rating >= 3.5</h2></div>
+          </div>
+          <div class="row">
+            <div id="red"></div>
+            <div id="legend-text"><h2>Rating < 3.5</h2></div>
+          </div>
         </div>
       </div>
     </div>
