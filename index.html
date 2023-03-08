@@ -38,13 +38,11 @@
         border: 1px solid black;
       }
 
-      .filter:hover {
-        background-color: #fb4d42;
-        color: white;
-      }
+      .filter:hover, .inner:hover {
+        font-weight: bold;
+        font-size: 14px;
+        border: 2px solid black;
 
-      .selected:hover {
-        background-color: #fb4d42;
       }
 
       .selected {
@@ -62,22 +60,11 @@
         box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 20px;
       }
 
-      .allOrClearButton {
-        display: flex;
-        flex-direction: row;
-        height: fit-content;
-        cursor: pointer;
-        margin: 5;
-        border-radius: 4px;
-        border: 1px solid black;
-        background-color: white;
-        font-weight: 800;
-      }
-
       .inner {
         flex: 1;
         padding: 10;
         transition: background-color 0.3s ease;
+        cursor: pointer;
       }
 
       .inner:hover {
@@ -178,7 +165,7 @@
     filter.innerHTML += `<button class="filter selected" id="${searchCategory[i]}">${formattedFilterName}</button>`;
   }
   filter.innerHTML +=
-    `<button id="all" class="inner allButton">All</button>` +
+    `<button id="all" class="inner allButton selected">All</button>` +
     `<button id="clear" class="inner">Clear</button> </div>`;
   
   const createGraph = async function () {
@@ -244,6 +231,8 @@
       circles = viewport.selectAll("circle.dot").data(reviews.filter(d => keepCircle(d, dict)))
                                     .join(enter => enter.append("circle")
                                       .attr("class", "dot")
+                                      .on("mouseover", mouseOver)
+                                      .on("mouseout", mouseOut) )
                                       .attr("fill", d => {
                                         let rating = d['rating']
                                         if (rating >= 4.5) {
@@ -254,8 +243,6 @@
                                           return "#FF6961";
                                         }
                                       })
-                                      .on("mouseover", mouseOver)
-                                      .on("mouseout", mouseOut))
                                       .attr("r", 5 / kholder)
                                       .attr("stroke", "black")
                                       .attr("stroke-width", 1 / kholder )
@@ -289,19 +276,19 @@
     d3.selectAll(".filter").on("click", function() {
       let object = d3.select(this);
       let id = object.attr("id");
-      console.log(id);
+      d3.select("#all").classed("selected", false);
+      d3.select("#clear").classed("selected", false);
 
-      let element = document.getElementById(id);
+
       let state = filter_dict[id];
       if (state) {
         filter_dict[id] = false;
-        element.classList.remove("selected")
+        object.classed("selected", false)
       }
       else {
         filter_dict[id] = true;
-        element.classList.add("selected")
+        object.classed("selected", true)
       }
-      console.log(filter_dict);
       drawCircles(filter_dict);
     });
 
@@ -309,6 +296,9 @@
       for (key in filter_dict){
         filter_dict[key] = true;
       }
+      d3.selectAll(".filter").classed("selected", true);
+      d3.select(this).classed("selected", true);
+      d3.select("#clear").classed("selected", false);
       drawCircles(filter_dict);
     });
 
@@ -316,6 +306,9 @@
       for (key in filter_dict){
         filter_dict[key] = false;
       }
+      d3.selectAll(".filter").classed("selected", false);
+      d3.select(this).classed("selected", true);
+      d3.select("#all").classed("selected", false);
       drawCircles(filter_dict);
     });
 
