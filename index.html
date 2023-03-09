@@ -83,7 +83,7 @@
       }
 
       #legend {
-        height: 21vh;
+        height: 22vh;
         box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
         background-color: #f7f9fa;
         padding: 5px;
@@ -92,10 +92,9 @@
       }
 
       .row {
-        height: 6.1vh;
+        flex: 1;
         width: auto;
         justify-content: center;
-        margin: 5px;
         display: flex;
         flex-direction: row;
         justify-content: left;
@@ -110,17 +109,23 @@
 
       #green {
         background-color: #7abd7e;
-        width: 20%;
+        width: 100%;
+        color: white;
+        text-align: center;
       }
 
       #orange {
         background-color: #ffb54c;
-        width: 20%;
+        width: 100%;
+        color: white;
+        text-align: center;
       }
 
       #red {
         background-color: #fb4d42;
-        width: 20%;
+        width: 100%;
+        color: white;
+        text-align: center;
       }
 
       .title {
@@ -156,16 +161,19 @@
         </div>
         <div id="legend">
           <div class="row">
-            <div id="green"></div>
-            <div id="legend-text"><h2>Rating >= 4.5</h2></div>
+            <div id="green">
+              <h2>Rating >= 4.5</h2>
+            </div>
           </div>
           <div class="row">
-            <div id="orange"></div>
-            <div id="legend-text"><h2>Rating >= 3.5</h2></div>
+            <div id="orange">
+              <h2>Rating >= 3.5</h2>
+            </div>
           </div>
           <div class="row">
-            <div id="red"></div>
-            <div id="legend-text"><h2>Rating < 3.5</h2></div>
+            <div id="red">
+              <h2>Rating < 3.5</h2>
+            </div>
           </div>
         </div>
       </div>
