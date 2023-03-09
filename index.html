@@ -264,7 +264,7 @@
           return false;
         }
       });
-      console.log(reviews);
+
 
       let bostonGeo = await d3.json("boston_zipcodes.topo.json");
 
@@ -314,7 +314,6 @@
       }
 
       function drawCircles(dict) {
-        console.log(reviews);
         circles = viewport
           .selectAll("circle.dot")
           .data(reviews.filter((d) => keepCircle(d, dict)))
