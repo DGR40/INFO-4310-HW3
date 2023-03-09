@@ -42,7 +42,7 @@
       .inner:hover {
         font-weight: bold;
         font-size: 14px;
-        border: 2px solid black;
+        border: 1.5px solid black;
       }
 
       .selected {
@@ -55,7 +55,7 @@
         display: flex;
         flex-direction: row;
         flex-wrap: wrap;
-        height: 60vh;
+        height: 50vh;
         float: left;
         box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 20px;
       }
@@ -75,7 +75,7 @@
       }
 
       #inspector {
-        height: 60vh;
+        height: 50vh;
         color: black;
         margin-left: 10px;
         box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
@@ -83,7 +83,7 @@
       }
 
       #legend {
-        height: 22vh;
+        height: fit-content;
         box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
         background-color: #f7f9fa;
         padding: 5px;
@@ -138,15 +138,26 @@
       .zip {
         padding-top: 5px;
       }
+
+      button {
+        border-radius: 4px;
+        border: 1px solid black;
+        height: 50px;
+      }
     </style>
   </head>
 
   <body>
     <div class="header"><h1>Eat Better, Eat Boston</h1></div>
     <div style="display: flex; flex-direction: row">
-      <div id="filter-area" style="width: 25vw">
-        <h2 class="title">Select what cuisine you are feeling:</h2>
+      <div style="display: flex; flex-direction: column; height: 70vh">
+        <div id="filter-area" style="width: 25vw">
+          <h2 class="title">Select what cuisine you are feeling:</h2>
+        </div>
+        <button id="all" class="inner selected">All</button>
+        <button id="clear" class="inner">Clear</button>
       </div>
+
       <svg id="map" height="83vh" width="45vw"></svg>
       <div>
         <div id="inspector" style="width: 27vw">
@@ -221,9 +232,6 @@
       }
       filter.innerHTML += `<button class="filter selected" id="${searchCategory[i]}">${formattedFilterName}</button>`;
     }
-    filter.innerHTML +=
-      `<button id="all" class="inner selected">All</button>` +
-      `<button id="clear" class="inner">Clear</button>`;
 
     const createGraph = async function () {
       // map setup
