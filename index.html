@@ -88,7 +88,6 @@
         background-color: #f7f9fa;
         padding: 5px;
         margin-left: 10px;
-        margin-top: 10px;
       }
 
       .row {
@@ -153,8 +152,10 @@
         <div id="inspector" style="width: 27vw">
           <h2 class="title">Click on a restaurant to view it's details...</h2>
           <div class="info" style="padding-left: 10px">
+            <p id="cuisine">Type:</p>
             <p id="name">Name:</p>
             <p id="rating">Rating:</p>
+            <p id="review-count">Number of Reviews:</p>
             <p id="neighborhood">Neighborhood:</p>
             <p id="review">Sample Review:</p>
           </div>
@@ -167,12 +168,12 @@
           </div>
           <div class="row">
             <div id="orange">
-              <h2>Rating >= 3.5</h2>
+              <h2>Rating >= 4</h2>
             </div>
           </div>
           <div class="row">
             <div id="red">
-              <h2>Rating < 3.5</h2>
+              <h2>Rating < 4</h2>
             </div>
           </div>
         </div>
@@ -399,12 +400,31 @@
         let rating = document.getElementById("rating");
         let neighborhood = document.getElementById("neighborhood");
         let review = document.getElementById("review");
+        let review_count = document.getElementById("review-count");
+        let cuisine = document.getElementById("cuisine");
         point.attr("r", 9 / kholder).attr("stroke-width", 3 / kholder);
 
         name.textContent = "Name: " + d.name;
         rating.textContent = "Rating: " + d.rating;
+        review_count.textContent = "Number of Reviews: " + d.review_count;
         neighborhood.textContent = "Neighborhood: " + d.neighborhood;
         review.textContent = "Sample Review: " + d.snippet_text;
+
+        let formattedFilterName;
+
+        if (d["search category"] == "indpak") {
+          formattedFilterName = "Indian Pakistani";
+        } else if (d["search category"] == "ethnicmarkets") {
+          formattedFilterName = "Ethnic Markets";
+        } else if (d["search category"] == "newamerican") {
+          formattedFilterName = "American";
+        } else {
+          formattedFilterName =
+            d["search category"].charAt(0).toUpperCase() +
+            d["search category"].substring(1);
+        }
+
+        cuisine.textContent = "Type: " + formattedFilterName;
       }
 
       function mouseOut(event, d) {
@@ -412,6 +432,8 @@
         let rating = document.getElementById("rating");
         let neighborhood = document.getElementById("neighborhood");
         let review = document.getElementById("review");
+        let review_count = document.getElementById("review-count");
+        let cuisine = document.getElementById("cuisine");
         let point = d3.select(this);
         point
           .attr("fill", (d) => {
@@ -430,6 +452,8 @@
         rating.textContent = "Rating: ";
         neighborhood.textContent = "Neighborhood: ";
         review.textContent = "Sample Review: ";
+        review_count.textContent = "Number of Reviews: ";
+        cuisine.textContent = "Type: ";
       }
     };
     createGraph();
