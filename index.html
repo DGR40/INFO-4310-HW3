@@ -75,6 +75,8 @@
       }
 
       #inspector {
+        display: flex;
+        flex-direction: column;
         height: 50vh;
         color: black;
         margin-left: 10px;
@@ -159,14 +161,14 @@
       </div>
 
       <svg id="map" height="83vh" width="45vw"></svg>
-      <div>
+      <div style="height: 70vh; margin: 0px;">
         <div id="inspector" style="width: 27vw">
           <h2 class="title">
             Hover over a restaurant to view it's details (zoom to get a closer
             view)...
           </h2>
           <div class="info" style="padding-left: 10px">
-            <p id="cuisine">Type:</p>
+            <p style="margin-top: 0px;" id="cuisine">Type:</p>
             <p id="name">Name:</p>
             <p id="rating">Rating:</p>
             <p id="review-count">Number of Reviews:</p>
@@ -265,7 +267,7 @@
           return false;
         }
       });
-      console.log(reviews);
+
 
       let bostonGeo = await d3.json("boston_zipcodes.topo.json");
 
@@ -315,7 +317,6 @@
       }
 
       function drawCircles(dict) {
-        console.log(reviews);
         circles = viewport
           .selectAll("circle.dot")
           .data(reviews.filter((d) => keepCircle(d, dict)))
