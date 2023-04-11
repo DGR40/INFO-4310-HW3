@@ -161,14 +161,14 @@
       </div>
 
       <svg id="map" height="83vh" width="45vw"></svg>
-      <div style="height: 70vh; margin: 0px;">
+      <div style="height: 70vh; margin: 0px">
         <div id="inspector" style="width: 27vw">
           <h2 class="title">
-            Hover over a restaurant to view it's details (zoom to get a closer
+            Hover over restaurant to view it's details (zoom to get a closer
             view)...
           </h2>
           <div class="info" style="padding-left: 10px">
-            <p style="margin-top: 0px;" id="cuisine">Type:</p>
+            <p style="margin-top: 0px" id="cuisine">Type:</p>
             <p id="name">Name:</p>
             <p id="rating">Rating:</p>
             <p id="review-count">Number of Reviews:</p>
@@ -267,7 +267,6 @@
           return false;
         }
       });
-
 
       let bostonGeo = await d3.json("boston_zipcodes.topo.json");
 
